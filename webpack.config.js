@@ -1,7 +1,10 @@
-const path = require("path");
-const webpack = require("webpack");
+import path from "path";
+import webpack from "webpack";
+import { fileURLToPath } from "url";
 
-module.exports = {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+export default {
   mode: "production", // or 'development'
   target: "node", // VS Code extensions run in a Node.js context
   entry: {
@@ -9,7 +12,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].js",
+    filename: "[name].cjs",
     libraryTarget: "commonjs",
     devtoolModuleFilenameTemplate: "../[resource-path]",
   },
