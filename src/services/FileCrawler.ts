@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-class FileCrawler {
+export class FileCrawler {
   static async findFiles(includePattern: string, excludePattern: string) {
     return await vscode.workspace.findFiles(includePattern, excludePattern);
   }
@@ -10,5 +10,3 @@ class FileCrawler {
     return new TextDecoder().decode(bytes);
   }
 }
-
-export default FileCrawler;
