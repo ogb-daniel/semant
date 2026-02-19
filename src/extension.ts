@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { FileCrawler } from "./services/FileCrawler";
 import { TextChunker } from "./services/TextChunker";
+import { EmbeddingsService } from "./services/EmbeddingsService";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log("Semantic Search Extension Activated");
@@ -21,16 +22,26 @@ export function activate(context: vscode.ExtensionContext) {
       const excludeGlob =
         excludePatterns.length > 0 ? `{${excludePatterns.join(",")}}` : "";
       const files = await FileCrawler.findFiles("**/*", excludeGlob);
+      const vectorStore: Array<{
+        vector: number[];
+        filePath: string;
+        chunk: string;
+      }> = [];
       console.log(`Found ${files.length} files`);
       for (const fileUri of files) {
         try {
           const content = await FileCrawler.readFile(fileUri);
           const chunks = TextChunker.chunkText(content);
           console.log(`Chunked ${fileUri.fsPath} into ${chunks.length} chunks`);
+          for (const chunk of chunks) {
+            const vector = await EmbeddingsService.embed(chunk);
+            vectorStore.push({ vector, filePath: fileUri.fsPath, chunk });
+          }
         } catch (error) {
           console.error(`Failed to process ${fileUri.fsPath}`, error);
         }
       }
+      console.dir(vectorStore?.[0]?.vector, { depth: null });
       vscode.window.showInformationMessage(
         `Indexing complete! Processed ${files.length} files`,
       );
