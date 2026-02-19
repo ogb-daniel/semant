@@ -1,4 +1,6 @@
 export class TextChunker {
+  private constructor() {}
+
   static chunkText(
     content: string,
     chunkSize: number = 500,
