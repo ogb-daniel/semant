@@ -45,7 +45,7 @@ export default {
   plugins: [
     // Ignore optional dependencies of ONNX runtime that might cause warnings
     new webpack.IgnorePlugin({
-      resourceRegExp: /^onnxruntime-node$|^node-gyp$/,
+      resourceRegExp: /^onnxruntime-node$|^node-gyp$|^sharp$/,
     }),
   ],
 };
