@@ -18,7 +18,9 @@ export default {
   },
   devtool: "source-map",
   externals: {
-    vscode: "commonjs vscode", // Exclude vscode API from bundle
+    vscode: "commonjs vscode",
+    "onnxruntime-node": "commonjs onnxruntime-node",
+    sharp: "commonjs sharp",
   },
   resolve: {
     extensions: [".ts", ".js"],
@@ -45,7 +47,7 @@ export default {
   plugins: [
     // Ignore optional dependencies of ONNX runtime that might cause warnings
     new webpack.IgnorePlugin({
-      resourceRegExp: /^onnxruntime-node$|^node-gyp$|^sharp$/,
+      resourceRegExp: /^node-gyp$/,
     }),
   ],
 };
