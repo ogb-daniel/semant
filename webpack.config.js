@@ -25,7 +25,6 @@ export default {
   resolve: {
     extensions: [".ts", ".js"],
     fallback: {
-      // Polyfills for browser handling if needed, but mostly for clean builds
       fs: false,
       path: false,
       os: false,
