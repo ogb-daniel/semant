@@ -11,9 +11,9 @@ export class EmbeddingsService {
     }
     return this.instance;
   }
-  static async embed(text: string): Promise<number[]> {
+  static async embed(text: string): Promise<Float32Array> {
     const extractor = await this.getInstance();
     const output = await extractor(text, { pooling: "mean", normalize: true });
-    return Array.from(output.data);
+    return Float32Array.from(output.data);
   }
 }

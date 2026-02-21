@@ -4,3 +4,9 @@ interface CodeChunk {
   startLine: number;
   endLine: number;
 }
+
+export interface IndexEntry {
+  vector: Float32Array;
+  filePath: string;
+  chunk: string;
+}

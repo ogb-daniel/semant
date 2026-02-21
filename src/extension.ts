@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
         excludePatterns.length > 0 ? `{${excludePatterns.join(",")}}` : "";
       const files = await FileCrawler.findFiles("**/*", excludeGlob);
       const vectorStore: Array<{
-        vector: number[];
+        vector: Float32Array;
         filePath: string;
         chunk: string;
       }> = [];
@@ -41,7 +41,9 @@ export function activate(context: vscode.ExtensionContext) {
           console.error(`Failed to process ${fileUri.fsPath}`, error);
         }
       }
-      console.dir(vectorStore?.[0]?.vector, { depth: null });
+      if (vectorStore.length) {
+        console.log(vectorStore[0]);
+      }
       vscode.window.showInformationMessage(
         `Indexing complete! Processed ${files.length} files`,
       );
