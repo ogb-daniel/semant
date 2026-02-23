@@ -80,7 +80,12 @@
           "default": [
             "**/node_modules/**",
             "**/dist/**",
-            "**/.git/**"
+            "**/.git/**",
+            "**/yarn.lock",
+            "**/package-lock.json",
+            "**/*.map",
+            "**/build/**",
+            "**/out/**"
           ],
           "description": "Glob patterns to exclude from indexing."
         }

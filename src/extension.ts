@@ -47,7 +47,10 @@ export function activate(context: vscode.ExtensionContext) {
       const excludePatterns = config.get<string[]>("excludePatterns") || [];
       const excludeGlob =
         excludePatterns.length > 0 ? `{${excludePatterns.join(",")}}` : "";
-      const files = await FileCrawler.findFiles("**/*", excludeGlob);
+      const files = await FileCrawler.findFiles(
+        "**/*.{ts,tsx,js,jsx,py,java,go,rs,css,scss,html,json,md}",
+        excludeGlob,
+      );
       console.log(`Found ${files.length} files`);
       for (const fileUri of files) {
         try {
