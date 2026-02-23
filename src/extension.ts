@@ -2,15 +2,41 @@ import * as vscode from "vscode";
 import { FileCrawler } from "./services/FileCrawler";
 import { TextChunker } from "./services/TextChunker";
 import { EmbeddingsService } from "./services/EmbeddingsService";
+import { VectorStore } from "./store/VectorStore";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log("Semantic Search Extension Activated");
+  const vectorStore = new VectorStore();
+
   const searchCommand = vscode.commands.registerCommand(
     "semant.search",
     async () => {
-      vscode.window.showInformationMessage(
-        "Semantic Search: Not implemented yet!",
-      );
+      if (vectorStore.size === 0) {
+        vscode.window.showWarningMessage(
+          "No index found. Run 'Reindex Workspace' first.",
+        );
+        return;
+      }
+      const query = await vscode.window.showInputBox({
+        prompt: "Semantic Search",
+        placeHolder: "Search",
+      });
+      if (!query) return;
+      const queryVector = await EmbeddingsService.embed(query);
+      const results = vectorStore.search(queryVector, 10);
+      const items = results.map((result) => ({
+        label: vscode.workspace.asRelativePath(result.filePath),
+        description: result.chunk.slice(0, 100).replace(/\n/g, " "),
+        filePath: result.filePath,
+      }));
+      const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: `Found ${results.length} results for "${query}"`,
+      });
+
+      if (selected) {
+        const doc = await vscode.workspace.openTextDocument(selected.filePath);
+        await vscode.window.showTextDocument(doc);
+      }
     },
   );
   const reindexCommand = vscode.commands.registerCommand(
@@ -22,11 +48,6 @@ export function activate(context: vscode.ExtensionContext) {
       const excludeGlob =
         excludePatterns.length > 0 ? `{${excludePatterns.join(",")}}` : "";
       const files = await FileCrawler.findFiles("**/*", excludeGlob);
-      const vectorStore: Array<{
-        vector: Float32Array;
-        filePath: string;
-        chunk: string;
-      }> = [];
       console.log(`Found ${files.length} files`);
       for (const fileUri of files) {
         try {
@@ -35,15 +56,13 @@ export function activate(context: vscode.ExtensionContext) {
           console.log(`Chunked ${fileUri.fsPath} into ${chunks.length} chunks`);
           for (const chunk of chunks) {
             const vector = await EmbeddingsService.embed(chunk);
-            vectorStore.push({ vector, filePath: fileUri.fsPath, chunk });
+            vectorStore.add({ vector, filePath: fileUri.fsPath, chunk });
           }
         } catch (error) {
           console.error(`Failed to process ${fileUri.fsPath}`, error);
         }
       }
-      if (vectorStore.length) {
-        console.log(vectorStore[0]);
-      }
+
       vscode.window.showInformationMessage(
         `Indexing complete! Processed ${files.length} files`,
       );
@@ -52,6 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
   const clearCommand = vscode.commands.registerCommand(
     "semant.clearIndex",
     async () => {
+      vectorStore.clear();
       vscode.window.showInformationMessage("Index cleared.");
     },
   );
