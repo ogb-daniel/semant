@@ -58,6 +58,8 @@ export function activate(context: vscode.ExtensionContext) {
           const chunks = TextChunker.chunkText(content);
           console.log(`Chunked ${fileUri.fsPath} into ${chunks.length} chunks`);
           for (const chunk of chunks) {
+            if (chunk.trim().length < 20) continue;
+
             const vector = await EmbeddingsService.embed(chunk);
             vectorStore.add({ vector, filePath: fileUri.fsPath, chunk });
           }
