@@ -70,7 +70,7 @@
           "group": "navigation"
         },
         {
-          "command": "semant.clear",
+          "command": "semant.clearIndex",
           "when": "view == semant-results-view",
           "group": "navigation"
         }
