@@ -3,11 +3,15 @@ import { FileCrawler } from "./services/FileCrawler";
 import { TextChunker } from "./services/TextChunker";
 import { EmbeddingsService } from "./services/EmbeddingsService";
 import { VectorStore } from "./store/VectorStore";
+import { SearchTreeProvider } from "./services/SearchTreeProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log("Semantic Search Extension Activated");
   const vectorStore = new VectorStore();
-
+  const provider = new SearchTreeProvider();
+  vscode.window.createTreeView("semant-results-view", {
+    treeDataProvider: provider,
+  });
   const searchCommand = vscode.commands.registerCommand(
     "semant.search",
     async () => {
@@ -29,14 +33,15 @@ export function activate(context: vscode.ExtensionContext) {
         description: result.chunk.slice(0, 100).replace(/\n/g, " "),
         filePath: result.filePath,
       }));
-      const selected = await vscode.window.showQuickPick(items, {
-        placeHolder: `Found ${results.length} results for "${query}"`,
-      });
+      provider.updateResults(results);
+      // const selected = await vscode.window.showQuickPick(items, {
+      //   placeHolder: `Found ${results.length} results for "${query}"`,
+      // });
 
-      if (selected) {
-        const doc = await vscode.workspace.openTextDocument(selected.filePath);
-        await vscode.window.showTextDocument(doc);
-      }
+      // if (selected) {
+      //   const doc = await vscode.workspace.openTextDocument(selected.filePath);
+      //   await vscode.window.showTextDocument(doc);
+      // }
     },
   );
   const reindexCommand = vscode.commands.registerCommand(
@@ -77,6 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
     "semant.clearIndex",
     async () => {
       vectorStore.clear();
+      provider.clearResults();
       vscode.window.showInformationMessage("Index cleared.");
     },
   );
