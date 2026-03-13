@@ -65,6 +65,11 @@
       ],
       "view/title": [
         {
+          "command": "semant.search",
+          "when": "view == semant-results-view",
+          "group": "navigation"
+        },
+        {
           "command": "semant.reindex",
           "when": "view == semant-results-view",
           "group": "navigation"
