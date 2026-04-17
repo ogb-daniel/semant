@@ -47,7 +47,17 @@ export function activate(context: vscode.ExtensionContext) {
   const reindexCommand = vscode.commands.registerCommand(
     "semant.reindex",
     async () => {
-      vscode.window.showInformationMessage("Indexing...");
+      provider.setIndexingState(true);
+
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title:'Semant',
+          cancellable: false
+        }, 
+        async (progress, token)=>{
+          progress.report({ message: "Finding files...", increment: 0 });
+          vscode.window.showInformationMessage("Indexing...");
       const config = vscode.workspace.getConfiguration("semant");
       const excludePatterns = config.get<string[]>("excludePatterns") || [];
       const excludeGlob =
@@ -57,8 +67,17 @@ export function activate(context: vscode.ExtensionContext) {
         excludeGlob,
       );
       console.log(`Found ${files.length} files`);
+      const incrementPerFile = files.length > 0 ? 100/files.length : 100
+              let processed = 0;
+
+     
       for (const fileUri of files) {
+        progress.report({ 
+          message: `Indexing file ${processed + 1} of ${files.length}...`, 
+          increment: incrementPerFile 
+       });
         try {
+
           const content = await FileCrawler.readFile(fileUri);
           const chunks = TextChunker.chunkText(content);
           console.log(`Chunked ${fileUri.fsPath} into ${chunks.length} chunks`);
@@ -71,11 +90,17 @@ export function activate(context: vscode.ExtensionContext) {
         } catch (error) {
           console.error(`Failed to process ${fileUri.fsPath}`, error);
         }
+        processed++;
+
       }
 
       vscode.window.showInformationMessage(
         `Indexing complete! Processed ${files.length} files`,
       );
+        }
+      )
+   provider.setIndexingState(false);
+
     },
   );
   const clearCommand = vscode.commands.registerCommand(

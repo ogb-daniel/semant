@@ -18,9 +18,10 @@ class SearchResultItem extends vscode.TreeItem {
   }
 }
 
-export class SearchTreeProvider implements vscode.TreeDataProvider<SearchResultItem> {
+export class SearchTreeProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   constructor() {}
   private results: SearchResultItem[] = [];
+  private isIndexing = false;
   private _onDidChangeTreeData = new vscode.EventEmitter<
     SearchResultItem | undefined | void
   >();
@@ -35,6 +36,12 @@ export class SearchTreeProvider implements vscode.TreeDataProvider<SearchResultI
   getChildren(
     element?: SearchResultItem | undefined,
   ): vscode.ProviderResult<SearchResultItem[]> {
+     if (this.isIndexing) {
+      const loader = new vscode.TreeItem("Indexing workspace...", vscode.TreeItemCollapsibleState.None);
+      loader.iconPath = new vscode.ThemeIcon("loading~spin"); 
+      return [loader];
+    }
+    
     return this.results;
   }
 
@@ -45,6 +52,11 @@ export class SearchTreeProvider implements vscode.TreeDataProvider<SearchResultI
 
   clearResults() {
     this.results = [];
+    this._onDidChangeTreeData.fire();
+  }
+
+  setIndexingState(state: boolean) {
+    this.isIndexing = state;
     this._onDidChangeTreeData.fire();
   }
 }
