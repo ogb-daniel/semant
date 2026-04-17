@@ -124,7 +124,13 @@
           "name": "Results"
         }
       ]
-    }
+    },
+    "viewsWelcome": [
+      {
+        "view": "semant-results-view",
+        "contents": "Welcome to Semant!\n\nSearch your codebase like you're chatting with AI.\n\n[Index Workspace](command:semant.reindex)"
+      }
+    ]
   },
   "keywords": [],
   "author": "",
