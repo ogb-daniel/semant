@@ -7,6 +7,13 @@ import { SearchTreeProvider } from "./services/SearchTreeProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log("Semantic Search Extension Activated");
+  let indexUri: vscode.Uri | undefined;
+  if (context.storageUri) {
+    vscode.workspace.fs.createDirectory(context.storageUri).then(() => {
+       indexUri = vscode.Uri.joinPath(context.storageUri!, "semant-index.json");
+       vectorStore.load(indexUri);
+    });
+  }
   const vectorStore = new VectorStore();
   const provider = new SearchTreeProvider();
   vscode.window.createTreeView("semant-results-view", {
@@ -77,6 +84,14 @@ export function activate(context: vscode.ExtensionContext) {
           increment: incrementPerFile 
        });
         try {
+            const stat = await vscode.workspace.fs.stat(fileUri);
+          const currentMtime = stat.mtime;
+          const cachedMtime = vectorStore.getLastModified(fileUri.fsPath);
+            if (cachedMtime === currentMtime) {
+            processed++;
+            continue; 
+          }
+                    vectorStore.removeEntriesForFile(fileUri.fsPath);
 
           const content = await FileCrawler.readFile(fileUri);
           const chunks = TextChunker.chunkText(content);
@@ -85,7 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (chunk.trim().length < 20) continue;
 
             const vector = await EmbeddingsService.embed(chunk);
-            vectorStore.add({ vector, filePath: fileUri.fsPath, chunk });
+            vectorStore.add({ vector, filePath: fileUri.fsPath, chunk , lastModified: currentMtime});
           }
         } catch (error) {
           console.error(`Failed to process ${fileUri.fsPath}`, error);
@@ -93,7 +108,9 @@ export function activate(context: vscode.ExtensionContext) {
         processed++;
 
       }
-
+  if (indexUri) {
+         await vectorStore.save(indexUri);
+      }
       vscode.window.showInformationMessage(
         `Indexing complete! Processed ${files.length} files`,
       );
