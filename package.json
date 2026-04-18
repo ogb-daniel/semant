@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/extension.cjs",
   "type": "module",
+  "publisher": "ogb-daniel",
   "engines": {
     "vscode": "^1.90.0"
   },
