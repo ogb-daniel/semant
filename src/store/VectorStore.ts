@@ -1,5 +1,6 @@
-import type { IndexEntry } from "../types";
-
+import { FileCrawler } from "../services/FileCrawler";
+import type { IndexEntry, SerializedIndexEntry } from "../types";
+import * as vscode from 'vscode'
 export class VectorStore {
   private entries: IndexEntry[] = [];
 
@@ -31,4 +32,32 @@ export class VectorStore {
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, topK).map((s) => s.entry);
   }
+
+  async save(uri: vscode.Uri){
+    const res: SerializedIndexEntry[] = this.entries.map((entry)=> ({...entry, vector: Array.from(entry.vector)}))
+    const data = new TextEncoder().encode(JSON.stringify(res))
+    await vscode.workspace.fs.writeFile(uri, data)
+  }
+
+  async load(uri: vscode.Uri){
+try {
+      const file = await FileCrawler.readFile(uri)
+      const json = JSON.parse(file) as IndexEntry[]
+      this.entries = json.map((entry)=>({...entry, vector: new Float32Array(entry.vector)}))
+           console.log(`Loaded ${this.entries.length} chunks from cache.`);
+} catch (error) {
+        this.entries = [];
+
+}
+  }
+
+    getLastModified(filePath: string): number | null {
+    const match = this.entries.find(e => e.filePath === filePath);
+    return match ? match.lastModified : null;
+  }
+
+  removeEntriesForFile(filePath: string) {
+    this.entries = this.entries.filter(e => e.filePath !== filePath);
+  }
+
 }
