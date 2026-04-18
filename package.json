@@ -1,6 +1,7 @@
 {
   "name": "semant",
-  "version": "1.0.1",
+  "displayName": "Semant",
+  "version": "1.0.2",
   "main": "dist/extension.cjs",
   "type": "module",
     "icon": "public/marketplace-icon.png", 
@@ -136,6 +137,10 @@
   },
   "keywords": [],
   "author": "",
+   "repository": {
+    "type": "git",
+    "url": "https://github.com/ogb-daniel/semant"
+  },
   "license": "ISC",
   "description": "",
   "devDependencies": {
