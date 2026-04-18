@@ -1,8 +1,9 @@
 {
   "name": "semant",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/extension.cjs",
   "type": "module",
+    "icon": "public/marketplace-icon.png", 
   "publisher": "ogb-daniel",
   "engines": {
     "vscode": "^1.109.0"
