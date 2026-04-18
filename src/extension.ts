@@ -7,6 +7,8 @@ import { SearchTreeProvider } from "./services/SearchTreeProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log("Semantic Search Extension Activated");
+  const vectorStore = new VectorStore();
+  const provider = new SearchTreeProvider();
   let indexUri: vscode.Uri | undefined;
   if (context.storageUri) {
     vscode.workspace.fs.createDirectory(context.storageUri).then(() => {
@@ -14,8 +16,6 @@ export function activate(context: vscode.ExtensionContext) {
        vectorStore.load(indexUri);
     });
   }
-  const vectorStore = new VectorStore();
-  const provider = new SearchTreeProvider();
   vscode.window.createTreeView("semant-results-view", {
     treeDataProvider: provider,
   });

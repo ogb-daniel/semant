@@ -42,7 +42,7 @@ export class VectorStore {
   async load(uri: vscode.Uri){
 try {
       const file = await FileCrawler.readFile(uri)
-      const json = JSON.parse(file) as IndexEntry[]
+      const json = JSON.parse(file) as SerializedIndexEntry[]
       this.entries = json.map((entry)=>({...entry, vector: new Float32Array(entry.vector)}))
            console.log(`Loaded ${this.entries.length} chunks from cache.`);
 } catch (error) {
