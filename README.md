@@ -17,7 +17,7 @@ Because Semant uses the ONNX Runtime and `Transformers.js`, the entire AI pipeli
 
 ## 🚀 Getting Started
 
-1. Open the **Semantic Search** panel in your Activity Bar (the glowing 'S' icon).
+1. Open the **Semantic Search** panel in your Activity Bar.
 2. Click **Index Workspace** (or the refresh icon). Semant will discover, chunk, and embed your codebase. The first run takes a moment as it downloads the model locally and processes your files.
 3. Once the index is complete, click the **Search** icon (🔍) in the panel header.
 4. Type your query! The results will instantly appear in the sidebar. Click any result to jump exactly to that chunk of code.
